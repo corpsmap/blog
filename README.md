@@ -9,7 +9,7 @@ This is a full-featured port of Ghost's default theme [Casper](https://github.co
 
 ## Live Demo
 
-[Ghost's Casper](https://demo.ghost.io) // [Jasper2](https://jekyllt.github.io/jasper2)
+[Jasper2](https://jekyllt.github.io/jasper2)
 
 ![home page](https://raw.githubusercontent.com/jekyllt/jasper2/master/assets/screenshot-desktop.jpg)
 
