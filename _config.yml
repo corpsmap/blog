@@ -12,7 +12,7 @@ baseurl: /blog/
 title: CorpsMap Blog
 description: Technical blog from the CorpsMap team
 cover: assets/images/blog-cover.jpg
-logo: assets/images/blog-icon.png
+logo: assets/images/corpsmap-logo.png
 logo_dark: assets/images/favicon.png
 favicon: assets/images/favicon.png
 CNAME: #add cname for website to be created
