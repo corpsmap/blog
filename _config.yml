@@ -30,7 +30,7 @@ disqus: False
 disqus_shortname: jekyllt # replace with your disqus username
 
 # Google Analytics
-google_analytics: UA-69281367-1 # replace with your GA tracking identifier
+google_analytics: G-1TCRZ1W9ML # replace with your GA tracking identifier
 
 # Permalinks
 permalink: /:title
@@ -67,8 +67,8 @@ feed:
 # or "master" otherwise
 safe: False
 lsi: False
-username: jekyllt
-repo: jasper2
+username: corpsmap
+repo: blog
 branch: master
 relative_source: ../jasper2/
 destination: ../jasper2-pages/
