@@ -8,10 +8,10 @@ class: page-template
 subclass: "post page"
 ---
 
-Ghost is professional publishing platform designed for modern journalism. This is a demo site of a basic Ghost install to give you a general sense of what a new Ghost site looks like when set up for the first time.
+CorpsMap is a team at the Remote Sensing / GIS Center of Expertise, part of the ERDC Cold Regions Research Engineering Laboratory. We build geospatial applications for the U.S. Army Corps of Engineers, the Army, and other Department of Defense organizations.
 
-> If you'd like to set up a site like this for yourself, head over to [Ghost.org](https://ghost.org/) and start a free 14 day trial to give Ghost a try!
+We have a commitment to pushing the bounds when it comes to geospatial technology and focus on web development, geo-visualization and active and passive remote sensing from the full range of sensor platforms and spectral tools.
 
-If you're a developer: Ghost is a completely open source (MIT) Node.js application built on a JSON API with an Ember.js admin client. It works with MySQL and SQLite, and is publicly available [on Github](https://github.com/TryGhost/ghost).
+This site is mainly designed to be a knowledge sharing platform for our team, but likely has content useful to a wider audience.
 
-If you need help with using Ghost, you'll find a ton of useful articles on [our knowledgebase](https://help.ghost.org/), as well as extensive [developer documentation](https://docs.ghost.org/).
+All views expressed here are those of our team members and do not reflect any policy of or endorcement by USACE, Army or the US Government.
