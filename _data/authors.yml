@@ -1,3 +1,13 @@
+will:
+  username: will
+  name: Will Breitkreutz
+  url_full: False
+  url: False
+  bio: I'm a software developer and data scientist. I'm passionate about using technology to solve problems and make the world a better place.
+  picture: assets/images/will.jpg
+  facebook: False
+  twitter: willbreitkreutz
+  cover: False
 ghost:
   username: ghost
   name: Ghost
