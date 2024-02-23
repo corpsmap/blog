@@ -39,9 +39,9 @@ Let's get into those in more detail later, for now we'll deal with Apache HTTPD.
 
 ## HTTPD
 
-Apache HTTPD is the workhorse of the internet, it's the ol tried and true web server that the CWBI program uses to implement the WAF (Web Application Firewall) layer of our environment. That means that all requests over HTTP come in through Apache and are forwarded to the respective service based on the routing rules laid out by the team.
+Apache HTTPD (aka Apache) is the workhorse of the internet, it's the ol tried and true web server that the CWBI program uses to implement the WAF (Web Application Firewall) layer of our environment. That means that all requests over HTTP(s) come in through Apache and are forwarded to the respective service based on the routing rules laid out by the team.
 
-This layer also acts as our TLS endpoint, that means that all traffic to HTTPD is required to be HTTPS, then the forwarded requests are handled using basic un-encrypted HTTP, but since that traffic lives only within our environment we think it works well enough. Some might argue that we should be HTTPS everywhere, but that imposes some interesting hurdles when trying to generate and rotate the certificates required to make that work.
+This layer also acts as our TLS endpoint, that means that traffic to Apache can come in over HTTP or HTTPS (we auto upgrade requests to HTTPS by default), then the forwarded requests are handled using basic un-encrypted HTTP, but since that traffic lives only within our environment we think it works well enough. Some might argue that we should be HTTPS everywhere, but that imposes some interesting hurdles when trying to generate and rotate the certificates required to make that work.
 
 Apache also handles mutual authentication, that's a long way of saying it'll read your CAC (Common Access Card) or PIV (Personal Identity Verification) certificates as part of the request negotiation if you tell it to. This is how we're doing CAC/PIV based login to Keycloak. In production we specify which routes should request mutual auth, but in development I usually just set it globally.
 
@@ -107,6 +107,6 @@ This is the main configuration file for for HTTPD. You shouldn't really change a
 
 ### httpd-ssl.config
 
-All of the TLS config is here, this is also where we'll define our reverse proxy endpoints pointing to our other services.
+All of the TLS config is here, this is also where we'll define our reverse proxy endpoints pointing to our other services. Here is also where we define our mutual auth config which allows us to strip data from the CAC/PIV certificates and pass them along to our other services as headers in the proxied requests.
 
-[Continue to the next post in the series ->](/local-dev-keycloak)
+[Continue to the next post in the series ->](/blog/local-dev-keycloak)
