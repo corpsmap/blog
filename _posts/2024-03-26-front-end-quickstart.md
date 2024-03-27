@@ -1,22 +1,24 @@
 ---
 layout: post
 current: post
-cover: assets/images/apache-small.jpg
+cover: assets/images/excavator.jpg
 navigation: true
 date: 2024-02-20T10:00:00.000Z
 tags:
-  - Local Dev
+  - Groundwork
+  - Front-end
 class: post-template
 subclass: post
 author: will
 ---
+
 ## Front-end Quickstart
 
-This guide will lead you through the process of starting up a new front-end project using the [Groundwork](https://usace.github.io/groundwork/) component library and a few of our other recommended libraries.  If you are not familiar, Groundwork is designed to reflect the USACE web standards as a React library, allowing developers to build sites that match the enterprise.
+This guide will lead you through the process of starting up a new front-end project using the [Groundwork](https://usace.github.io/groundwork/) component library and a few of our other recommended libraries. If you are not familiar, Groundwork is designed to reflect the USACE web standards as a React library, allowing developers to build sites that match the enterprise.
 
 ### Vite
 
-[Vite](https://vitejs.dev) is the build system we use for our front-end development.  It transpiles your code in Typescript or JavaScript into bundles of JavaScript that the browser can use efficiently.  It includes a development server that allows you to preview your site as you build it with included hot-reload.  It does lots more, but I'll let [the vite docs](https://vitejs.dev/guide/why.html) do the heavy lifting if you want more details.
+[Vite](https://vitejs.dev) is the build system we use for our front-end development. It transpiles your code in Typescript or JavaScript into bundles of JavaScript that the browser can use efficiently. It includes a development server that allows you to preview your site as you build it with included hot-reload. It does lots more, but I'll let [the vite docs](https://vitejs.dev/guide/why.html) do the heavy lifting if you want more details.
 
 Using your terminal, `cd` to the folder where you want your front-end project to live, in my case I often put projects in `~/code` for example.
 
@@ -56,15 +58,15 @@ Hit `ctrl+c` to shut down your development server, we're going to make some chan
 
 ### Install Dependencies
 
-While we always want to limit our dependencies list, there are a few that we typically use in our projects.  The first being the Groundwork component library.  This library will give you a set of pre-built components you can use to lay out your site.  Check out the [Groundwork documentation](https://usace.github.io/groundwork/) for more information.
+While we always want to limit our dependencies list, there are a few that we typically use in our projects. The first being the Groundwork component library. This library will give you a set of pre-built components you can use to lay out your site. Check out the [Groundwork documentation](https://usace.github.io/groundwork/) for more information.
 
 Run `npm install @usace/groundwork`.
 
 #### Optional Dependencies
 
-State management in the React ecosystem can be a complex subject, there are lots of approaches for managing application state.  We could spend countless hours debating the merits of the various libraries out there not to mention the built-in state management features provided by React. So in the interest of time and sanity, we're going to cover the solution we've landed on and have yet to set aside in favor of another.
+State management in the React ecosystem can be a complex subject, there are lots of approaches for managing application state. We could spend countless hours debating the merits of the various libraries out there not to mention the built-in state management features provided by React. So in the interest of time and sanity, we're going to cover the solution we've landed on and have yet to set aside in favor of another.
 
-Run `npm install redux-bundler redux-bundler-react redux-bundler-hook` to install the base set of [Redux Bundler](https://reduxbundler.com) libraries.  This provides a solution built on top of [Redux](https://redux.js.org/), a popular state management library with an easier developer experience than raw Redux.  It also includes utilities for page routing (displaying the right page based on the URL) and data caching.  
+Run `npm install redux-bundler redux-bundler-react redux-bundler-hook` to install the base set of [Redux Bundler](https://reduxbundler.com) libraries. This provides a solution built on top of [Redux](https://redux.js.org/), a popular state management library with an easier developer experience than raw Redux. It also includes utilities for page routing (displaying the right page based on the URL) and data caching.
 
 Run `npm install money-clip` for a simple cache that can be wired up to bundler.
 
@@ -74,7 +76,7 @@ Each of these will need to be added to the code for the app in order for us to s
 
 #### Tailwind
 
-While I have mixed feelings about [Tailwind](https://tailwindcss.com/) it provides enough utility that I have to admit I like using it.  There are numerous other options for styling/css/css-in-js but Tailwind is becoming very widely used and gives you some options.  Groundwork is built using Tailwind.  
+While I have mixed feelings about [Tailwind](https://tailwindcss.com/) it provides enough utility that I have to admit I like using it. There are numerous other options for styling/css/css-in-js but Tailwind is becoming very widely used and gives you some options. Groundwork is built using Tailwind.
 
 More on installing Tailwind soon.
 
