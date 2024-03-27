@@ -3,6 +3,7 @@ layout: post
 current: post
 cover: assets/images/excavator.jpg
 navigation: true
+title: Front-end Quickstart
 date: 2024-02-20T10:00:00.000Z
 tags:
   - Groundwork
@@ -11,8 +12,6 @@ class: post-template
 subclass: post
 author: will
 ---
-
-## Front-end Quickstart
 
 This guide will lead you through the process of starting up a new front-end project using the [Groundwork](https://usace.github.io/groundwork/) component library and a few of our other recommended libraries. If you are not familiar, Groundwork is designed to reflect the USACE web standards as a React library, allowing developers to build sites that match the enterprise.
 
