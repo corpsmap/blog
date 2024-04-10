@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title> - Articles</title>
+    <description>Technical blog from the CorpsMap team</description>
+    <link>
+    </link>
+    
+      
+      <item>
+        <title>Front-end Quickstart</title>
+        
+          <description>&lt;p&gt;This guide will lead you through the process of starting up a new front-end project using the &lt;a href=&quot;https://usace.github.io/groundwork/&quot;&gt;Groundwork&lt;/a&gt; component library and a few of our other recommended libraries. If you are not familiar, Groundwork is designed to reflect the USACE web standards as a React library, allowing developers to build sites that match the enterprise.&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Tue, 20 Feb 2024 10:00:00 +0000</pubDate>
+        <link>
+        /front-end-quickstart</link>
+        <guid isPermaLink="true">/front-end-quickstart</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>Apache HTTPD local reverse proxy</title>
+        
+          <description>&lt;p&gt;You might be asking yourself “what is a local reverse proxy and why would I need one?”, if so, great! That’s what we’re going to cover today.&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Tue, 20 Feb 2024 10:00:00 +0000</pubDate>
+        <link>
+        /local-dev-apache</link>
+        <guid isPermaLink="true">/local-dev-apache</guid>
+      </item>
+      
+    
+  </channel>
+</rss>

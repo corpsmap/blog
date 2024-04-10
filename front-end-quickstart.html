@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <!-- Document Settings -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <!-- Base Meta -->
+    <!-- dynamically fixing the title for tag/author pages -->
+
+
+
+    <title>Front-end Quickstart</title>
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Styles'n'Scripts -->
+    <link rel="stylesheet" type="text/css" href="/blog/assets/built/screen.css" />
+    <link rel="stylesheet" type="text/css" href="/blog/assets/built/screen.edited.css" />
+    <link rel="stylesheet" type="text/css" href="/blog/assets/built/syntax.css" />
+    <!-- highlight.js -->
+    <link rel="stylesheet" href="/blog/assets/built/highlight.min.css">
+    <style>.hljs { background: none; }</style>
+
+    <!--[if IE]>
+        <style>
+            p, ol, ul{
+                width: 100%;
+            }
+            blockquote{
+                width: 100%;
+            }
+        </style>
+    <![endif]-->
+    
+    <!-- This tag outputs SEO meta+structured data and other important settings -->
+    <meta name="description" content="Technical blog from the CorpsMap team" />
+    <link rel="shortcut icon" href="/blog/assets/images/corpsmap-logo.png" type="image/png" />
+    <link rel="canonical" href="/blog/front-end-quickstart" />
+    <meta name="referrer" content="no-referrer-when-downgrade" />
+
+     <!--title below is coming from _includes/dynamic_title-->
+    <meta property="og:site_name" content="CorpsMap Blog" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Front-end Quickstart" />
+    <meta property="og:description" content="This guide will lead you through the process of starting up a new front-end project using the Groundwork component library and a few of our other recommended libraries. If you are not familiar, Groundwork is designed to reflect the USACE web standards as a React library, allowing developers to build" />
+    <meta property="og:url" content="/blog/front-end-quickstart" />
+    <meta property="og:image" content="/blog/assets/images/excavator.jpg" />
+    <meta property="article:publisher" content="https://www.facebook.com/false" />
+    <meta property="article:author" content="https://www.facebook.com/false" />
+    <meta property="article:published_time" content="2024-02-20T10:00:00+00:00" />
+    <meta property="article:modified_time" content="2024-02-20T10:00:00+00:00" />
+    <meta property="article:tag" content="Groundwork" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Front-end Quickstart" />
+    <meta name="twitter:description" content="This guide will lead you through the process of starting up a new front-end project using the Groundwork component library and a few of our other recommended libraries. If you are not familiar, Groundwork is designed to reflect the USACE web standards as a React library, allowing developers to build" />
+    <meta name="twitter:url" content="/blog/" />
+    <meta name="twitter:image" content="/blog/assets/images/excavator.jpg" />
+    <meta name="twitter:label1" content="Written by" />
+    <meta name="twitter:data1" content="CorpsMap Blog" />
+    <meta name="twitter:label2" content="Filed under" />
+    <meta name="twitter:data2" content="Groundwork" />
+    <meta name="twitter:site" content="@false" />
+    <meta name="twitter:creator" content="@false" />
+    <meta property="og:image:width" content="1400" />
+    <meta property="og:image:height" content="933" />
+
+    <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Website",
+    "publisher": {
+        "@type": "Organization",
+        "name": "CorpsMap Blog",
+        "logo": "/blog/assets/images/corpsmap-logo.png"
+    },
+    "url": "/blog/front-end-quickstart",
+    "image": {
+        "@type": "ImageObject",
+        "url": "/blog/assets/images/excavator.jpg",
+        "width": 2000,
+        "height": 666
+    },
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "/blog/front-end-quickstart"
+    },
+    "description": "This guide will lead you through the process of starting up a new front-end project using the Groundwork component library and a few of our other recommended libraries. If you are not familiar, Groundwork is designed to reflect the USACE web standards as a React library, allowing developers to build"
+}
+    </script>
+
+    <!-- <script type="text/javascript" src="https://demo.ghost.io/public/ghost-sdk.min.js?v=724281a32e"></script>
+    <script type="text/javascript">
+    ghost.init({
+    	clientId: "ghost-frontend",
+    	clientSecret: "f84a07a72b17"
+    });
+    </script> -->
+
+    <meta name="generator" content="Jekyll 3.6.2" />
+    <link rel="alternate" type="application/rss+xml" title="Front-end Quickstart" href="/blog/feed.xml" />
+
+
+</head>
+<body class="post-template">
+
+    <div class="site-wrapper">
+        <!-- All the main content gets inserted here, index.hbs, post.hbs, etc -->
+        <!-- default -->
+
+<!-- The tag above means: insert everything in this file
+into the {body} of the default.hbs template -->
+
+<header class="site-header outer">
+    <div class="inner">
+        <nav class="site-nav">
+    <div class="site-nav-left">
+        
+            
+                <a class="site-nav-logo" href="/blog/"><img src="/blog/assets/images/corpsmap-logo.png" alt="CorpsMap Blog" /></a>
+            
+        
+        
+            <ul class="nav" role="menu">
+    <li class="nav-home" role="menuitem"><a href="/blog/">Home</a></li>
+    <li class="nav-about" role="menuitem"><a href="/blog/about/">About</a></li>
+</ul>
+
+        
+    </div>
+    <div class="site-nav-right">
+        <div class="social-links">
+            
+            
+        </div>
+        
+    </div>
+</nav>
+
+    </div>
+</header>
+
+<!-- Everything inside the #post tags pulls data from the post -->
+<!-- #post -->
+
+<main id="site-main" class="site-main outer" role="main">
+    <div class="inner">
+
+        <article class="post-full  tag-groundwork tag-front-end post ">
+
+            <header class="post-full-header">
+                <section class="post-full-meta">
+                    <time class="post-full-meta-date" datetime="20 February 2024">20 February 2024</time>
+                    
+                        <span class="date-divider">/</span>
+                        
+                            
+                               <a href='/blog/tag/groundwork/'>GROUNDWORK</a>,
+                            
+                        
+                            
+                               <a href='/blog/tag/front-end/'>FRONT-END</a>
+                            
+                        
+                    
+                </section>
+                <h1 class="post-full-title">Front-end Quickstart</h1>
+            </header>
+
+            
+            <figure class="post-full-image" style="background-image: url(/blog/assets/images/excavator.jpg)">
+            </figure>
+            
+
+            <section class="post-full-content">
+                <div class="kg-card-markdown">
+                    <p>This guide will lead you through the process of starting up a new front-end project using the <a href="https://usace.github.io/groundwork/">Groundwork</a> component library and a few of our other recommended libraries. If you are not familiar, Groundwork is designed to reflect the USACE web standards as a React library, allowing developers to build sites that match the enterprise.</p>
+
+<h3 id="vite">Vite</h3>
+
+<p><a href="https://vitejs.dev">Vite</a> is the build system we use for our front-end development. It transpiles your code in Typescript or JavaScript into bundles of JavaScript that the browser can use efficiently. It includes a development server that allows you to preview your site as you build it with included hot-reload. It does lots more, but I’ll let <a href="https://vitejs.dev/guide/why.html">the vite docs</a> do the heavy lifting if you want more details.</p>
+
+<p>Using your terminal, <code class="language-plaintext highlighter-rouge">cd</code> to the folder where you want your front-end project to live, in my case I often put projects in <code class="language-plaintext highlighter-rouge">~/code</code> for example.</p>
+
+<p>Run <code class="language-plaintext highlighter-rouge">npm create vite@latest</code>. This will walk you through a few options:</p>
+
+<ol>
+  <li>Name your project, this will be the enclosing folder name that will be created in your current directory.</li>
+  <li>Pick a framework, we’re using React</li>
+  <li>Pick a variant, I typically use JavaScript, TypeScript is a popular option, and the reasons I don’t use it deserve their own post, so just pick JavaScript for now.</li>
+</ol>
+
+<p>Vite will create your project with some basic scaffolding, which we can use to make sure the setup went right, but we’ll clean out most of it as we start to build our app.</p>
+
+<h3 id="test-the-setup">Test the Setup</h3>
+
+<p>Follow the prompts from the Vite tool:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cd &lt;project_name&gt;
+npm install
+npm run dev
+</code></pre></div></div>
+
+<p>The install step can take a minute depending on network access. If everything went ok, you should see the following message in your console after running <code class="language-plaintext highlighter-rouge">npm run dev</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>VITE v5.2.6  ready in 248 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+  ➜  press h + enter to show help
+</code></pre></div></div>
+
+<p>Open your browser to the URL <code class="language-plaintext highlighter-rouge">http://localhost:5173/</code> (you can ctrl+click the URL in most consoles).</p>
+
+<p>If you see a site with the Vite and React logos above a button that operates a simple counter then you’re good to go!</p>
+
+<p>Hit <code class="language-plaintext highlighter-rouge">ctrl+c</code> to shut down your development server, we’re going to make some changes and then start it back up in a little bit.</p>
+
+<h3 id="install-dependencies">Install Dependencies</h3>
+
+<p>While we always want to limit our dependencies list, there are a few that we typically use in our projects. The first being the Groundwork component library. This library will give you a set of pre-built components you can use to lay out your site. Check out the <a href="https://usace.github.io/groundwork/">Groundwork documentation</a> for more information.</p>
+
+<p>Run <code class="language-plaintext highlighter-rouge">npm install @usace/groundwork</code>.</p>
+
+<h4 id="optional-dependencies">Optional Dependencies</h4>
+
+<p>State management in the React ecosystem can be a complex subject, there are lots of approaches for managing application state. We could spend countless hours debating the merits of the various libraries out there not to mention the built-in state management features provided by React. So in the interest of time and sanity, we’re going to cover the solution we’ve landed on and have yet to set aside in favor of another.</p>
+
+<p>Run <code class="language-plaintext highlighter-rouge">npm install redux-bundler redux-bundler-react redux-bundler-hook</code> to install the base set of <a href="https://reduxbundler.com">Redux Bundler</a> libraries. This provides a solution built on top of <a href="https://redux.js.org/">Redux</a>, a popular state management library with an easier developer experience than raw Redux. It also includes utilities for page routing (displaying the right page based on the URL) and data caching.</p>
+
+<p>Run <code class="language-plaintext highlighter-rouge">npm install money-clip</code> for a simple cache that can be wired up to bundler.</p>
+
+<p>Run <code class="language-plaintext highlighter-rouge">npm install internal-nav-helper</code> for a utility that will allow us to use simple <code class="language-plaintext highlighter-rouge">a</code> tags with <code class="language-plaintext highlighter-rouge">href</code> attributes rather than require that we use some abstract <code class="language-plaintext highlighter-rouge">&lt;Link/&gt;</code> component from a client-side-routing library.</p>
+
+<p>Each of these will need to be added to the code for the app in order for us to start taking advantage of them.</p>
+
+<h4 id="tailwind">Tailwind</h4>
+
+<p>While I have mixed feelings about <a href="https://tailwindcss.com/">Tailwind</a> it provides enough utility that I have to admit I like using it. There are numerous other options for styling/css/css-in-js but Tailwind is becoming very widely used and gives you some options. Groundwork is built using Tailwind.</p>
+
+<p>More on installing Tailwind soon.</p>
+
+<h3 id="start-using-groundwork">Start using Groundwork</h3>
+
+<p>Open the project folder in the IDE of your choice, we typically use VSCode.</p>
+
+<p>Open <code class="language-plaintext highlighter-rouge">src/index.css</code>. Delete everything here, we don’t want these styles colliding with what we’re doing.</p>
+
+<p>Open <code class="language-plaintext highlighter-rouge">src/App.jsx</code>. We’re going to replace the contents with the code block below:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import { SiteWrapper, Container, UsaceBox } from "@usace/groundwork";
+import "@usace/groundwork/dist/style.css";
+
+function App() {
+  return (
+    &lt;SiteWrapper&gt;
+      &lt;Container&gt;
+        &lt;UsaceBox className="mt-8"&gt;
+          &lt;div title="My New Site"&gt;Hello World&lt;/div&gt;
+        &lt;/UsaceBox&gt;
+      &lt;/Container&gt;
+    &lt;/SiteWrapper&gt;
+  );
+}
+
+export default App;
+</code></pre></div></div>
+
+<p>There are lots of options for customizing the site wrapper, but this should get you a basic header, footer and styled content on the page.</p>
+
+                </div>
+            </section>
+
+            <!-- Email subscribe form at the bottom of the page -->
+            
+
+            <footer class="post-full-footer">
+                <!-- Everything inside the #author tags pulls data from the author -->
+                <!-- #author-->
+                
+                    
+                        <section class="author-card">
+                            
+                                <img class="author-profile-image" src="/blog/assets/images/will.jpg" alt="will" />
+                            
+                            <section class="author-card-content">
+                                <h4 class="author-card-name"><a href="/blog/author/will">Will Breitkreutz</a></h4>
+                                
+                                    <p>I'm a software developer and open-source advocate within USACE.  Research Geographer at ERDC-CRREL.</p>
+                                
+                            </section>
+                        </section>
+                        <div class="post-full-footer-right">
+                            <a class="author-card-button" href="/blog/author/will">Read More</a>
+                        </div>
+                    
+                
+                <!-- /author  -->
+            </footer>
+
+            <!-- If you use Disqus comments, just uncomment this block.
+            The only thing you need to change is "test-apkdzgmqhj" - which
+            should be replaced with your own Disqus site-id. -->
+            
+
+        </article>
+
+    </div>
+</main>
+
+<!-- Links to Previous/Next posts -->
+<aside class="read-next outer">
+    <div class="inner">
+        <div class="read-next-feed">
+            
+                
+                
+                
+                
+            
+
+            <!-- If there's a next post, display it using the same markup included from - partials/post-card.hbs -->
+            
+
+            <!-- If there's a previous post, display it using the same markup included from - partials/post-card.hbs -->
+            
+                
+
+    <article class="post-card post-template">
+        
+            <a class="post-card-image-link" href="/blog/local-dev-apache">
+                <div class="post-card-image" style="background-image: url(/blog/assets/images/apache-small.jpg)"></div>
+            </a>
+        
+        <div class="post-card-content">
+            <a class="post-card-content-link" href="/blog/local-dev-apache">
+                <header class="post-card-header">
+                    
+                        
+                            
+                                <span class="post-card-tags">Local dev</span>
+                            
+                        
+                    
+
+                    <h2 class="post-card-title">Apache HTTPD local reverse proxy</h2>
+                </header>
+                <section class="post-card-excerpt">
+                    
+                        <p>You might be asking yourself “what is a local reverse proxy and why would I need one?”, if so, great! That’s what we’re going to cover today.
+
+</p>
+                    
+                </section>
+            </a>
+            <footer class="post-card-meta">
+                
+                    
+                        
+                        <img class="author-profile-image" src="/blog/assets/images/will.jpg" alt="Will Breitkreutz" />
+                        
+                        <span class="post-card-author">
+                            <a href="/blog/author/will/">Will Breitkreutz</a>
+                        </span>
+                    
+                
+                <span class="reading-time">
+                    
+                    
+                      4 min read
+                    
+                </span>
+            </footer>
+        </div>
+    </article>
+
+            
+
+        </div>
+    </div>
+</aside>
+
+<!-- Floating header which appears on-scroll, included from includes/floating-header.hbs -->
+<div class="floating-header">
+    <div class="floating-header-logo">
+        <a href="/blog/">
+            
+                <img src="/blog/assets/images/corpsmap-logo.png" alt="CorpsMap Blog icon" />
+            
+            <span>CorpsMap Blog</span>
+        </a>
+    </div>
+    <span class="floating-header-divider">&mdash;</span>
+    <div class="floating-header-title">Front-end Quickstart</div>
+    <div class="floating-header-share">
+        <div class="floating-header-share-label">Share this <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path d="M7.5 15.5V4a1.5 1.5 0 1 1 3 0v4.5h2a1 1 0 0 1 1 1h2a1 1 0 0 1 1 1H18a1.5 1.5 0 0 1 1.5 1.5v3.099c0 .929-.13 1.854-.385 2.748L17.5 23.5h-9c-1.5-2-5.417-8.673-5.417-8.673a1.2 1.2 0 0 1 1.76-1.605L7.5 15.5zm6-6v2m-3-3.5v3.5m6-1v2"/>
+</svg>
+</div>
+        <a class="floating-header-share-tw" href="https://twitter.com/share?text=Front-end+Quickstart&amp;url=https://corpsmap.github.io/blog/front-end-quickstart"
+            onclick="window.open(this.href, 'share-twitter', 'width=550,height=235');return false;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M30.063 7.313c-.813 1.125-1.75 2.125-2.875 2.938v.75c0 1.563-.188 3.125-.688 4.625a15.088 15.088 0 0 1-2.063 4.438c-.875 1.438-2 2.688-3.25 3.813a15.015 15.015 0 0 1-4.625 2.563c-1.813.688-3.75 1-5.75 1-3.25 0-6.188-.875-8.875-2.625.438.063.875.125 1.375.125 2.688 0 5.063-.875 7.188-2.5-1.25 0-2.375-.375-3.375-1.125s-1.688-1.688-2.063-2.875c.438.063.813.125 1.125.125.5 0 1-.063 1.5-.25-1.313-.25-2.438-.938-3.313-1.938a5.673 5.673 0 0 1-1.313-3.688v-.063c.813.438 1.688.688 2.625.688a5.228 5.228 0 0 1-1.875-2c-.5-.875-.688-1.813-.688-2.75 0-1.063.25-2.063.75-2.938 1.438 1.75 3.188 3.188 5.25 4.25s4.313 1.688 6.688 1.813a5.579 5.579 0 0 1 1.5-5.438c1.125-1.125 2.5-1.688 4.125-1.688s3.063.625 4.188 1.813a11.48 11.48 0 0 0 3.688-1.375c-.438 1.375-1.313 2.438-2.563 3.188 1.125-.125 2.188-.438 3.313-.875z"/></svg>
+
+        </a>
+        <a class="floating-header-share-fb" href="https://www.facebook.com/sharer/sharer.php?u=https://corpsmap.github.io/blog/front-end-quickstart"
+            onclick="window.open(this.href, 'share-facebook','width=580,height=296');return false;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M19 6h5V0h-5c-3.86 0-7 3.14-7 7v3H8v6h4v16h6V16h5l1-6h-6V7c0-.542.458-1 1-1z"/></svg>
+
+        </a>
+    </div>
+    <progress class="progress" value="0">
+        <div class="progress-container">
+            <span class="progress-bar"></span>
+        </div>
+    </progress>
+</div>
+
+
+<!-- /post -->
+
+<!-- The #contentFor helper here will send everything inside it up to the matching #block helper found in default.hbs -->
+
+
+        <!-- Previous/next page links - displayed on every page -->
+        
+
+        <!-- The footer at the very bottom of the screen -->
+        <footer class="site-footer outer">
+            <div class="site-footer-content inner">
+                <section class="copyright"><a href="/blog/">CorpsMap Blog</a> &copy; 2024</section>
+                <section class="poweredby">Proudly published with <a href="https://jekyllrb.com/">Jekyll</a> &
+                    <a href="https://pages.github.com/" target="_blank" rel="noopener">GitHub Pages</a></section>
+                <nav class="site-footer-nav">
+                    <a href="/blog/">Latest Posts</a>
+                    <a href="https://github.com/corpsmap" target="_blank" rel="noopener">CorpsMap GitHub</a>
+                    <a href="https://github.com/USACE" target="_blank" rel="noopener">USACE GitHub</a>
+                    <a href="https://github.com/cwbi-apps" target="_blank" rel="noopener">CWBI Apps GitHub</a>
+                </nav>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- The big email subscribe modal content -->
+    
+
+    
+
+    <!-- jQuery + Fitvids, which makes all video embeds responsive -->
+    <script
+        src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+        crossorigin="anonymous">
+    </script>
+    <script type="text/javascript" src="/blog/assets/js/jquery.fitvids.js"></script>
+
+    <!-- highlight.js -->
+    <script src="/blog/assets/js/highlight.min.js"></script>
+
+    <!-- Paginator increased to "infinit" in _config.yml -->
+    <!-- if paginator.posts  -->
+    <!-- <script>
+        var maxPages = parseInt('');
+    </script>
+    <script src="/blog/assets/js/infinitescroll.js"></script> -->
+    <!-- /endif -->
+
+    
+
+
+    <!-- Add Google Analytics  -->
+    <!-- Google Analytics Tracking code -->
+ <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'G-1TCRZ1W9ML', 'auto');
+  ga('send', 'pageview');
+
+ </script>
+
+
+    <!-- The #block helper will pull in data from the #contentFor other template files. In this case, there's some JavaScript which we only want to use in post.hbs, but it needs to be included down here, after jQuery has already loaded. -->
+    
+        <script>
+
+// NOTE: Scroll performance is poor in Safari
+// - this appears to be due to the events firing much more slowly in Safari.
+//   Dropping the scroll event and using only a raf loop results in smoother
+//   scrolling but continuous processing even when not scrolling
+$(document).ready(function () {
+    // Start fitVids
+    var $postContent = $(".post-full-content");
+    $postContent.fitVids();
+    // End fitVids
+
+    var progressBar = document.querySelector('progress');
+    var header = document.querySelector('.floating-header');
+    var title = document.querySelector('.post-full-title');
+
+    var lastScrollY = window.scrollY;
+    var lastWindowHeight = window.innerHeight;
+    var lastDocumentHeight = $(document).height();
+    var ticking = false;
+
+    function onScroll() {
+        lastScrollY = window.scrollY;
+        requestTick();
+    }
+
+    function onResize() {
+        lastWindowHeight = window.innerHeight;
+        lastDocumentHeight = $(document).height();
+        requestTick();
+    }
+
+    function requestTick() {
+        if (!ticking) {
+            requestAnimationFrame(update);
+        }
+        ticking = true;
+    }
+
+    function update() {
+        var trigger = title.getBoundingClientRect().top + window.scrollY;
+        var triggerOffset = title.offsetHeight + 35;
+        var progressMax = lastDocumentHeight - lastWindowHeight;
+
+        // show/hide floating header
+        if (lastScrollY >= trigger + triggerOffset) {
+            header.classList.add('floating-active');
+        } else {
+            header.classList.remove('floating-active');
+        }
+
+        progressBar.setAttribute('max', progressMax);
+        progressBar.setAttribute('value', lastScrollY);
+
+        ticking = false;
+    }
+
+    window.addEventListener('scroll', onScroll, {passive: true});
+    window.addEventListener('resize', onResize, false);
+
+    update();
+});
+</script>
+
+    
+
+    <!-- Ghost outputs important scripts and data with this tag - it should always be the very last thing before the closing body tag -->
+    <!-- ghost_foot -->
+
+</body>
+</html>

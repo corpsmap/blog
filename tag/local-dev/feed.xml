@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<feed xmlns="http://www.w3.org/2005/Atom" >
+  <generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator>
+  <link href="/blog/tag/local-dev/feed.xml" rel="self" type="application/atom+xml" />
+  <link href="/blog/" rel="alternate" type="text/html" />
+  <updated>2024-04-10T02:47:13+00:00</updated>
+  <id>/blog/tag/local-dev/feed.xml</id>
+
+  
+  
+  
+
+  
+    <title type="html">CorpsMap Blog | </title>
+  
+
+  
+    <subtitle>Technical blog from the CorpsMap team</subtitle>
+  
+
+  
+
+  
+    
+      
+    
+  
+
+  
+  
+
+  
+    <entry>
+      <title type="html">Apache HTTPD local reverse proxy</title>
+      <link href="/blog/local-dev-apache" rel="alternate" type="text/html" title="Apache HTTPD local reverse proxy" />
+      <published>2024-02-20T10:00:00+00:00</published>
+      <updated>2024-02-20T10:00:00+00:00</updated>
+      <id>/blog/local-dev-apache</id>
+      <content type="html" xml:base="/blog/local-dev-apache">&lt;p&gt;You might be asking yourself “what is a local reverse proxy and why would I need one?”, if so, great! That’s what we’re going to cover today.&lt;/p&gt;
+
+&lt;p&gt;This is the first in a series of posts I’m using to document my local development setup using Docker-Compose to orchestrate all the services you would need to run a local development environment that emulates how you might be deploying your site in CWBI. This includes a number of base services that will allow you to get work done without having to be on the network with access to any of our shared resources.&lt;/p&gt;
+
+&lt;p&gt;You can use the following setup in a couple of different ways, lately I’ve been creating mono-repos with the full stack of things you would need included for each application I’m working on. You could also stand up a single instance of the shared resources like HTTPD and use them across all the apps you’re building.&lt;/p&gt;
+
+&lt;p&gt;I decided on the mono-repo approach so that it is easy to hand a project off to a new team member and get them up and running quickly.&lt;/p&gt;
+
+&lt;p&gt;Let’s do a quick overview of the local dev setup, then dive into HTTPD. We’ll add more posts to cover the other components soon.&lt;/p&gt;
+
+&lt;h3 id=&quot;the-stack&quot;&gt;The Stack&lt;/h3&gt;
+
+&lt;p&gt;&lt;strong&gt;Basic Components&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Apache HTTPD - Reverse Proxy, TLS endpoint&lt;/li&gt;
+  &lt;li&gt;Keycloak - Authentication / Authorization&lt;/li&gt;
+  &lt;li&gt;Postgres - Database&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;Optional&lt;/strong&gt; Depending on what I’m building I might include these as well:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Flyway - Can be used for more advanced things, but typically I use it to manage DB schema updates&lt;/li&gt;
+  &lt;li&gt;PG-Tileserv - Vector tiles out of the box for any PostGIS data in a DB&lt;/li&gt;
+  &lt;li&gt;PG-Featureserv - OGC Features API out of the box for any PostGIS data in a DB&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Let’s get into those in more detail later, for now we’ll deal with Apache HTTPD.&lt;/p&gt;
+
+&lt;h2 id=&quot;httpd&quot;&gt;HTTPD&lt;/h2&gt;
+
+&lt;p&gt;Apache HTTPD (aka Apache) is the workhorse of the internet, it’s the ol tried and true web server that the CWBI program uses to implement the WAF (Web Application Firewall) layer of our environment. That means that all requests over HTTP(s) come in through Apache and are forwarded to the respective service based on the routing rules laid out by the team.&lt;/p&gt;
+
+&lt;p&gt;This layer also acts as our TLS endpoint, that means that traffic to Apache can come in over HTTP or HTTPS (we auto upgrade requests to HTTPS by default), then the forwarded requests are handled using basic un-encrypted HTTP, but since that traffic lives only within our environment we think it works well enough. Some might argue that we should be HTTPS everywhere, but that imposes some interesting hurdles when trying to generate and rotate the certificates required to make that work.&lt;/p&gt;
+
+&lt;p&gt;Apache also handles mutual authentication, that’s a long way of saying it’ll read your CAC (Common Access Card) or PIV (Personal Identity Verification) certificates as part of the request negotiation if you tell it to. This is how we’re doing CAC/PIV based login to Keycloak. In production we specify which routes should request mutual auth, but in development I usually just set it globally.&lt;/p&gt;
+
+&lt;p&gt;In order to do mutual auth locally, we need a couple things though, we need to run in HTTPS mode, which means we need a valid HTTPS certificate that our browser can recognize so we don’t break the many browser based rules around HTTPS. Luckily we have a teammate that created his own CA that we can leverage for a local HTTPS certificate.&lt;/p&gt;
+
+&lt;h2 id=&quot;setup&quot;&gt;Setup&lt;/h2&gt;
+
+&lt;p&gt;I typically setup a project folder that contains my source for the application as well as folders for each of the services managed by Docker Compose. It will work as a single development infrastructure stack independent of the source code of your app as well.&lt;/p&gt;
+
+&lt;p&gt;So given a folder structure like:&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;/my-project
+  /api
+  /httpd
+  /keycloak
+  /flyway
+  /ui
+  /docker-compose.yml
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Let’s set up the contents of the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/httpd&lt;/code&gt; folder, then configure our &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;docker-compose.yml&lt;/code&gt; for apache.&lt;/p&gt;
+
+&lt;h3 id=&quot;dockerfile&quot;&gt;Dockerfile&lt;/h3&gt;
+
+&lt;p&gt;The dockerfile basically just takes the off-the-shelf Apache HTTPD container and copies some of our customized files in to configure the setup.&lt;/p&gt;
+
+&lt;div class=&quot;language-dockerfile highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;FROM&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; httpd:2.4&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;COPY&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; httpd.conf /usr/local/apache2/conf/httpd.conf&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;COPY&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; httpd-ssl.conf /usr/local/apache2/conf/extra/httpd-ssl.conf&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;COPY&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; dev2-crrel-mil.crt /usr/local/apache2/conf/dev2-crrel-mil.crt&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;COPY&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; dev2-crrel-mil.key /usr/local/apache2/conf/dev2-crrel-mil.key&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;COPY&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; CRREL-CA1.crt /usr/local/apache2/conf/CRREL-CA1.crt&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;COPY&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; trustore.crt /usr/local/apache2/conf/trustore.crt&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;div class=&quot;language-dockerfile highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;FROM&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; httpd:2.4&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Start with the base public httpd image, version 2.4.&lt;/p&gt;
+
+&lt;div class=&quot;language-dockerfile highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;COPY&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; httpd.conf /usr/local/apache2/conf/httpd.conf&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;COPY&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; httpd-ssl.conf /usr/local/apache2/conf/extra/httpd-ssl.conf&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Copy our customized config files into the container, we’ll get into the weeds on these next.&lt;/p&gt;
+
+&lt;div class=&quot;language-dockerfile highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;COPY&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; dev2-crrel-mil.crt /usr/local/apache2/conf/dev2-crrel-mil.crt&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;COPY&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; dev2-crrel-mil.key /usr/local/apache2/conf/dev2-crrel-mil.key&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;COPY&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; CRREL-CA1.crt /usr/local/apache2/conf/CRREL-CA1.crt&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;COPY&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; trustore.crt /usr/local/apache2/conf/trustore.crt&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Copy our local dev certificate and CA information, this lets us run HTTPS locally. &lt;strong&gt;These certificates should never be used on a server.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;httpdconf&quot;&gt;httpd.conf&lt;/h3&gt;
+
+&lt;p&gt;This is the main configuration file for for HTTPD. You shouldn’t really change anything here unless you know what you’re doing.&lt;/p&gt;
+
+&lt;h3 id=&quot;httpd-sslconfig&quot;&gt;httpd-ssl.config&lt;/h3&gt;
+
+&lt;p&gt;All of the TLS config is here, this is also where we’ll define our reverse proxy endpoints pointing to our other services. Here is also where we define our mutual auth config which allows us to strip data from the CAC/PIV certificates and pass them along to our other services as headers in the proxied requests.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;/blog/local-dev-keycloak&quot;&gt;Continue to the next post in the series -&amp;gt;&lt;/a&gt;&lt;/p&gt;</content>
+
+      
+      
+      
+      
+      
+
+      <author>
+          <name>Will Breitkreutz</name>
+        
+        
+      </author>
+
+      
+
+      
+        <category term="Local Dev" />
+      
+
+      
+        <summary type="html">You might be asking yourself “what is a local reverse proxy and why would I need one?”, if so, great! That’s what we’re going to cover today.</summary>
+      
+
+      
+      
+    </entry>
+  
+</feed>

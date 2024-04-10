@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="/blog/feed.xml" rel="self" type="application/atom+xml" /><link href="/blog/" rel="alternate" type="text/html" /><updated>2024-04-10T02:47:13+00:00</updated><id>/blog/feed.xml</id><title type="html">CorpsMap Blog</title><subtitle>Technical blog from the CorpsMap team</subtitle><entry><title type="html">Apache HTTPD local reverse proxy</title><link href="/blog/local-dev-apache" rel="alternate" type="text/html" title="Apache HTTPD local reverse proxy" /><published>2024-02-20T10:00:00+00:00</published><updated>2024-02-20T10:00:00+00:00</updated><id>/blog/local-dev-apache</id><content type="html" xml:base="/blog/local-dev-apache">&lt;p&gt;You might be asking yourself “what is a local reverse proxy and why would I need one?”, if so, great! That’s what we’re going to cover today.&lt;/p&gt;
+
+&lt;p&gt;This is the first in a series of posts I’m using to document my local development setup using Docker-Compose to orchestrate all the services you would need to run a local development environment that emulates how you might be deploying your site in CWBI. This includes a number of base services that will allow you to get work done without having to be on the network with access to any of our shared resources.&lt;/p&gt;
+
+&lt;p&gt;You can use the following setup in a couple of different ways, lately I’ve been creating mono-repos with the full stack of things you would need included for each application I’m working on. You could also stand up a single instance of the shared resources like HTTPD and use them across all the apps you’re building.&lt;/p&gt;
+
+&lt;p&gt;I decided on the mono-repo approach so that it is easy to hand a project off to a new team member and get them up and running quickly.&lt;/p&gt;
+
+&lt;p&gt;Let’s do a quick overview of the local dev setup, then dive into HTTPD. We’ll add more posts to cover the other components soon.&lt;/p&gt;
+
+&lt;h3 id=&quot;the-stack&quot;&gt;The Stack&lt;/h3&gt;
+
+&lt;p&gt;&lt;strong&gt;Basic Components&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Apache HTTPD - Reverse Proxy, TLS endpoint&lt;/li&gt;
+  &lt;li&gt;Keycloak - Authentication / Authorization&lt;/li&gt;
+  &lt;li&gt;Postgres - Database&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;Optional&lt;/strong&gt; Depending on what I’m building I might include these as well:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Flyway - Can be used for more advanced things, but typically I use it to manage DB schema updates&lt;/li&gt;
+  &lt;li&gt;PG-Tileserv - Vector tiles out of the box for any PostGIS data in a DB&lt;/li&gt;
+  &lt;li&gt;PG-Featureserv - OGC Features API out of the box for any PostGIS data in a DB&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Let’s get into those in more detail later, for now we’ll deal with Apache HTTPD.&lt;/p&gt;
+
+&lt;h2 id=&quot;httpd&quot;&gt;HTTPD&lt;/h2&gt;
+
+&lt;p&gt;Apache HTTPD (aka Apache) is the workhorse of the internet, it’s the ol tried and true web server that the CWBI program uses to implement the WAF (Web Application Firewall) layer of our environment. That means that all requests over HTTP(s) come in through Apache and are forwarded to the respective service based on the routing rules laid out by the team.&lt;/p&gt;
+
+&lt;p&gt;This layer also acts as our TLS endpoint, that means that traffic to Apache can come in over HTTP or HTTPS (we auto upgrade requests to HTTPS by default), then the forwarded requests are handled using basic un-encrypted HTTP, but since that traffic lives only within our environment we think it works well enough. Some might argue that we should be HTTPS everywhere, but that imposes some interesting hurdles when trying to generate and rotate the certificates required to make that work.&lt;/p&gt;
+
+&lt;p&gt;Apache also handles mutual authentication, that’s a long way of saying it’ll read your CAC (Common Access Card) or PIV (Personal Identity Verification) certificates as part of the request negotiation if you tell it to. This is how we’re doing CAC/PIV based login to Keycloak. In production we specify which routes should request mutual auth, but in development I usually just set it globally.&lt;/p&gt;
+
+&lt;p&gt;In order to do mutual auth locally, we need a couple things though, we need to run in HTTPS mode, which means we need a valid HTTPS certificate that our browser can recognize so we don’t break the many browser based rules around HTTPS. Luckily we have a teammate that created his own CA that we can leverage for a local HTTPS certificate.&lt;/p&gt;
+
+&lt;h2 id=&quot;setup&quot;&gt;Setup&lt;/h2&gt;
+
+&lt;p&gt;I typically setup a project folder that contains my source for the application as well as folders for each of the services managed by Docker Compose. It will work as a single development infrastructure stack independent of the source code of your app as well.&lt;/p&gt;
+
+&lt;p&gt;So given a folder structure like:&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;/my-project
+  /api
+  /httpd
+  /keycloak
+  /flyway
+  /ui
+  /docker-compose.yml
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Let’s set up the contents of the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/httpd&lt;/code&gt; folder, then configure our &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;docker-compose.yml&lt;/code&gt; for apache.&lt;/p&gt;
+
+&lt;h3 id=&quot;dockerfile&quot;&gt;Dockerfile&lt;/h3&gt;
+
+&lt;p&gt;The dockerfile basically just takes the off-the-shelf Apache HTTPD container and copies some of our customized files in to configure the setup.&lt;/p&gt;
+
+&lt;div class=&quot;language-dockerfile highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;FROM&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; httpd:2.4&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;COPY&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; httpd.conf /usr/local/apache2/conf/httpd.conf&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;COPY&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; httpd-ssl.conf /usr/local/apache2/conf/extra/httpd-ssl.conf&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;COPY&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; dev2-crrel-mil.crt /usr/local/apache2/conf/dev2-crrel-mil.crt&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;COPY&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; dev2-crrel-mil.key /usr/local/apache2/conf/dev2-crrel-mil.key&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;COPY&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; CRREL-CA1.crt /usr/local/apache2/conf/CRREL-CA1.crt&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;COPY&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; trustore.crt /usr/local/apache2/conf/trustore.crt&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;div class=&quot;language-dockerfile highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;FROM&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; httpd:2.4&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Start with the base public httpd image, version 2.4.&lt;/p&gt;
+
+&lt;div class=&quot;language-dockerfile highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;COPY&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; httpd.conf /usr/local/apache2/conf/httpd.conf&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;COPY&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; httpd-ssl.conf /usr/local/apache2/conf/extra/httpd-ssl.conf&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Copy our customized config files into the container, we’ll get into the weeds on these next.&lt;/p&gt;
+
+&lt;div class=&quot;language-dockerfile highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;COPY&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; dev2-crrel-mil.crt /usr/local/apache2/conf/dev2-crrel-mil.crt&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;COPY&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; dev2-crrel-mil.key /usr/local/apache2/conf/dev2-crrel-mil.key&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;COPY&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; CRREL-CA1.crt /usr/local/apache2/conf/CRREL-CA1.crt&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;COPY&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; trustore.crt /usr/local/apache2/conf/trustore.crt&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Copy our local dev certificate and CA information, this lets us run HTTPS locally. &lt;strong&gt;These certificates should never be used on a server.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;httpdconf&quot;&gt;httpd.conf&lt;/h3&gt;
+
+&lt;p&gt;This is the main configuration file for for HTTPD. You shouldn’t really change anything here unless you know what you’re doing.&lt;/p&gt;
+
+&lt;h3 id=&quot;httpd-sslconfig&quot;&gt;httpd-ssl.config&lt;/h3&gt;
+
+&lt;p&gt;All of the TLS config is here, this is also where we’ll define our reverse proxy endpoints pointing to our other services. Here is also where we define our mutual auth config which allows us to strip data from the CAC/PIV certificates and pass them along to our other services as headers in the proxied requests.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;/blog/local-dev-keycloak&quot;&gt;Continue to the next post in the series -&amp;gt;&lt;/a&gt;&lt;/p&gt;</content><author><name>Will Breitkreutz</name></author><category term="Local Dev" /><summary type="html">You might be asking yourself “what is a local reverse proxy and why would I need one?”, if so, great! That’s what we’re going to cover today.</summary></entry><entry><title type="html">Front-end Quickstart</title><link href="/blog/front-end-quickstart" rel="alternate" type="text/html" title="Front-end Quickstart" /><published>2024-02-20T10:00:00+00:00</published><updated>2024-02-20T10:00:00+00:00</updated><id>/blog/front-end-quickstart</id><content type="html" xml:base="/blog/front-end-quickstart">&lt;p&gt;This guide will lead you through the process of starting up a new front-end project using the &lt;a href=&quot;https://usace.github.io/groundwork/&quot;&gt;Groundwork&lt;/a&gt; component library and a few of our other recommended libraries. If you are not familiar, Groundwork is designed to reflect the USACE web standards as a React library, allowing developers to build sites that match the enterprise.&lt;/p&gt;
+
+&lt;h3 id=&quot;vite&quot;&gt;Vite&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://vitejs.dev&quot;&gt;Vite&lt;/a&gt; is the build system we use for our front-end development. It transpiles your code in Typescript or JavaScript into bundles of JavaScript that the browser can use efficiently. It includes a development server that allows you to preview your site as you build it with included hot-reload. It does lots more, but I’ll let &lt;a href=&quot;https://vitejs.dev/guide/why.html&quot;&gt;the vite docs&lt;/a&gt; do the heavy lifting if you want more details.&lt;/p&gt;
+
+&lt;p&gt;Using your terminal, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;cd&lt;/code&gt; to the folder where you want your front-end project to live, in my case I often put projects in &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;~/code&lt;/code&gt; for example.&lt;/p&gt;
+
+&lt;p&gt;Run &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;npm create vite@latest&lt;/code&gt;. This will walk you through a few options:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Name your project, this will be the enclosing folder name that will be created in your current directory.&lt;/li&gt;
+  &lt;li&gt;Pick a framework, we’re using React&lt;/li&gt;
+  &lt;li&gt;Pick a variant, I typically use JavaScript, TypeScript is a popular option, and the reasons I don’t use it deserve their own post, so just pick JavaScript for now.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Vite will create your project with some basic scaffolding, which we can use to make sure the setup went right, but we’ll clean out most of it as we start to build our app.&lt;/p&gt;
+
+&lt;h3 id=&quot;test-the-setup&quot;&gt;Test the Setup&lt;/h3&gt;
+
+&lt;p&gt;Follow the prompts from the Vite tool:&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;cd &amp;lt;project_name&amp;gt;
+npm install
+npm run dev
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The install step can take a minute depending on network access. If everything went ok, you should see the following message in your console after running &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;npm run dev&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;VITE v5.2.6  ready in 248 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+  ➜  press h + enter to show help
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Open your browser to the URL &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;http://localhost:5173/&lt;/code&gt; (you can ctrl+click the URL in most consoles).&lt;/p&gt;
+
+&lt;p&gt;If you see a site with the Vite and React logos above a button that operates a simple counter then you’re good to go!&lt;/p&gt;
+
+&lt;p&gt;Hit &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ctrl+c&lt;/code&gt; to shut down your development server, we’re going to make some changes and then start it back up in a little bit.&lt;/p&gt;
+
+&lt;h3 id=&quot;install-dependencies&quot;&gt;Install Dependencies&lt;/h3&gt;
+
+&lt;p&gt;While we always want to limit our dependencies list, there are a few that we typically use in our projects. The first being the Groundwork component library. This library will give you a set of pre-built components you can use to lay out your site. Check out the &lt;a href=&quot;https://usace.github.io/groundwork/&quot;&gt;Groundwork documentation&lt;/a&gt; for more information.&lt;/p&gt;
+
+&lt;p&gt;Run &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;npm install @usace/groundwork&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h4 id=&quot;optional-dependencies&quot;&gt;Optional Dependencies&lt;/h4&gt;
+
+&lt;p&gt;State management in the React ecosystem can be a complex subject, there are lots of approaches for managing application state. We could spend countless hours debating the merits of the various libraries out there not to mention the built-in state management features provided by React. So in the interest of time and sanity, we’re going to cover the solution we’ve landed on and have yet to set aside in favor of another.&lt;/p&gt;
+
+&lt;p&gt;Run &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;npm install redux-bundler redux-bundler-react redux-bundler-hook&lt;/code&gt; to install the base set of &lt;a href=&quot;https://reduxbundler.com&quot;&gt;Redux Bundler&lt;/a&gt; libraries. This provides a solution built on top of &lt;a href=&quot;https://redux.js.org/&quot;&gt;Redux&lt;/a&gt;, a popular state management library with an easier developer experience than raw Redux. It also includes utilities for page routing (displaying the right page based on the URL) and data caching.&lt;/p&gt;
+
+&lt;p&gt;Run &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;npm install money-clip&lt;/code&gt; for a simple cache that can be wired up to bundler.&lt;/p&gt;
+
+&lt;p&gt;Run &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;npm install internal-nav-helper&lt;/code&gt; for a utility that will allow us to use simple &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;a&lt;/code&gt; tags with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;href&lt;/code&gt; attributes rather than require that we use some abstract &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;&amp;lt;Link/&amp;gt;&lt;/code&gt; component from a client-side-routing library.&lt;/p&gt;
+
+&lt;p&gt;Each of these will need to be added to the code for the app in order for us to start taking advantage of them.&lt;/p&gt;
+
+&lt;h4 id=&quot;tailwind&quot;&gt;Tailwind&lt;/h4&gt;
+
+&lt;p&gt;While I have mixed feelings about &lt;a href=&quot;https://tailwindcss.com/&quot;&gt;Tailwind&lt;/a&gt; it provides enough utility that I have to admit I like using it. There are numerous other options for styling/css/css-in-js but Tailwind is becoming very widely used and gives you some options. Groundwork is built using Tailwind.&lt;/p&gt;
+
+&lt;p&gt;More on installing Tailwind soon.&lt;/p&gt;
+
+&lt;h3 id=&quot;start-using-groundwork&quot;&gt;Start using Groundwork&lt;/h3&gt;
+
+&lt;p&gt;Open the project folder in the IDE of your choice, we typically use VSCode.&lt;/p&gt;
+
+&lt;p&gt;Open &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;src/index.css&lt;/code&gt;. Delete everything here, we don’t want these styles colliding with what we’re doing.&lt;/p&gt;
+
+&lt;p&gt;Open &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;src/App.jsx&lt;/code&gt;. We’re going to replace the contents with the code block below:&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;import { SiteWrapper, Container, UsaceBox } from &quot;@usace/groundwork&quot;;
+import &quot;@usace/groundwork/dist/style.css&quot;;
+
+function App() {
+  return (
+    &amp;lt;SiteWrapper&amp;gt;
+      &amp;lt;Container&amp;gt;
+        &amp;lt;UsaceBox className=&quot;mt-8&quot;&amp;gt;
+          &amp;lt;div title=&quot;My New Site&quot;&amp;gt;Hello World&amp;lt;/div&amp;gt;
+        &amp;lt;/UsaceBox&amp;gt;
+      &amp;lt;/Container&amp;gt;
+    &amp;lt;/SiteWrapper&amp;gt;
+  );
+}
+
+export default App;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;There are lots of options for customizing the site wrapper, but this should get you a basic header, footer and styled content on the page.&lt;/p&gt;</content><author><name>Will Breitkreutz</name></author><category term="Groundwork" /><category term="Front-end" /><summary type="html">This guide will lead you through the process of starting up a new front-end project using the Groundwork component library and a few of our other recommended libraries. If you are not familiar, Groundwork is designed to reflect the USACE web standards as a React library, allowing developers to build sites that match the enterprise.</summary></entry></feed>
